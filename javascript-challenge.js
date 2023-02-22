@@ -33,16 +33,94 @@ var _k = _interopRequireDefault(require("./k"));
 var _drawers = _interopRequireDefault(require("./widgets/drawers"));
 var _extendingForm = _interopRequireDefault(require("./widgets/extending-form"));
 var _tabs = _interopRequireDefault(require("./widgets/tabs"));
+var _checkboxes = _interopRequireDefault(require("./widgets/checkboxes"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 document.addEventListener("DOMContentLoaded", function () {
   (0, _k["default"])({
     drawers: _drawers["default"],
     extendingForm: _extendingForm["default"],
-    tabs: _tabs["default"]
+    tabs: _tabs["default"],
+    checkboxes: _checkboxes["default"]
   }, document);
 });
 
-},{"./k":1,"./widgets/drawers":3,"./widgets/extending-form":4,"./widgets/tabs":5}],3:[function(require,module,exports){
+},{"./k":1,"./widgets/checkboxes":3,"./widgets/drawers":4,"./widgets/extending-form":5,"./widgets/tabs":6}],3:[function(require,module,exports){
+"use strict";
+
+function checkboxes(widget) {
+  var controlBox = widget.querySelector('[kjs-role=control]');
+  var relatedBoxes = widget.querySelectorAll('[kjs-role=related]');
+  function setup() {
+    controlBox.checked = false;
+    controlBox.indeterminate = false;
+    relatedBoxes.forEach(function (checkbox) {
+      checkbox.checked = false;
+    });
+  }
+  function handleControlCheckboxChange() {
+    var checkedCount = 0;
+    var uncheckedCount = 0;
+    relatedBoxes.forEach(function (checkbox) {
+      if (checkbox.checked) {
+        checkedCount++;
+      } else {
+        uncheckedCount++;
+      }
+    });
+    if (uncheckedCount != 0 && checkedCount != 0 && controlBox.checked) {
+      controlBox.checked = false;
+      relatedBoxes.forEach(function (checkbox) {
+        checkbox.checked = false;
+      });
+    } else if (controlBox.checked) {
+      relatedBoxes.forEach(function (checkbox) {
+        checkbox.checked = true;
+      });
+    } else {
+      relatedBoxes.forEach(function (checkbox) {
+        checkbox.checked = false;
+      });
+    }
+    controlBox.indeterminate = false;
+  }
+  function handleRelatedCheckboxChange() {
+    var checkedCount = 0;
+    var uncheckedCount = 0;
+    relatedBoxes.forEach(function (checkbox) {
+      if (checkbox.checked) {
+        checkedCount++;
+      } else {
+        uncheckedCount++;
+      }
+    });
+    if (checkedCount == 0) {
+      controlBox.checked = false;
+      controlBox.indeterminate = false;
+    } else if (uncheckedCount == 0) {
+      controlBox.checked = true;
+      controlBox.indeterminate = false;
+    } else {
+      controlBox.checked = false;
+      controlBox.indeterminate = true;
+    }
+  }
+  var actions = [];
+  controlBox.addEventListener('change', handleControlCheckboxChange);
+  relatedBoxes.forEach(function (checkbox) {
+    actions.push({
+      element: checkbox,
+      event: 'change',
+      handler: handleRelatedCheckboxChange
+    });
+  });
+  return {
+    setup: setup,
+    actions: actions
+  };
+}
+module.exports = checkboxes;
+
+},{}],4:[function(require,module,exports){
 "use strict";
 
 function accordion(widget) {
@@ -72,7 +150,7 @@ function accordion(widget) {
 }
 module.exports = accordion;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 
 function extendingForm(widget) {
@@ -99,7 +177,7 @@ function extendingForm(widget) {
 }
 module.exports = extendingForm;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
 function tabs(widget) {
